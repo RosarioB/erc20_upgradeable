@@ -7,8 +7,29 @@ import "@openzeppelin/contracts-upgradeable/token/ERC20/extensions/ERC20Pausable
 import "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol";
 import "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol";
 
-contract UpgradeableToken2 is Initializable, ERC20Upgradeable, ERC20BurnableUpgradeable, ERC20PausableUpgradeable, OwnableUpgradeable {
+contract BlackList is OwnableUpgradeable {
     mapping (address => bool) internal blackList;
+
+    function isBlackListed(address maker) public view returns (bool) {
+        return blackList[maker];
+    }
+    
+    function addBlackList (address evilUser) public onlyOwner {
+        blackList[evilUser] = true;
+        emit AddedBlackList(evilUser);
+    }
+
+    function removeBlackList (address clearedUser) public onlyOwner {
+        blackList[clearedUser] = false;
+        emit RemovedBlackList(clearedUser);
+    }
+
+    event AddedBlackList(address user);
+
+    event RemovedBlackList(address user);
+}
+
+contract UpgradeableToken2 is Initializable, ERC20Upgradeable, ERC20BurnableUpgradeable, ERC20PausableUpgradeable, OwnableUpgradeable, BlackList {
     
     /// @custom:oz-upgrades-unsafe-allow constructor
     constructor() {
@@ -37,26 +58,6 @@ contract UpgradeableToken2 is Initializable, ERC20Upgradeable, ERC20BurnableUpgr
         require(!isBlackListed(to), "The recipient address is blacklisted");
         super._update(from, to, value);
     }
-
-    function isBlackListed(address maker) public view returns (bool) {
-        return blackList[maker];
-    }
-    
-    function addBlackList (address evilUser) public onlyOwner {
-        blackList[evilUser] = true;
-        emit AddedBlackList(evilUser);
-    }
-
-    function removeBlackList (address clearedUser) public onlyOwner {
-        blackList[clearedUser] = false;
-        emit RemovedBlackList(clearedUser);
-    }
-
-    event DestroyedBlackFunds(address blackListedUser, uint balance);
-
-    event AddedBlackList(address user);
-
-    event RemovedBlackList(address user);
 
 }
 
