@@ -58,6 +58,5 @@ contract UpgradeableToken2 is Initializable, ERC20Upgradeable, ERC20BurnableUpgr
         require(!isBlackListed(to), "The recipient address is blacklisted");
         super._update(from, to, value);
     }
-
 }
 
